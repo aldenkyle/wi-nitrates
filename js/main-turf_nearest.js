@@ -38,7 +38,6 @@ $.ajax(url).done(function (data) {
   leafletLayers.addTo(map);
 });
 
-
 var styleMarkers = function (closestPoints) {
   var artIds = _.map(closestPoints, function (point) {
     return point.properties.nitr_ran;
@@ -52,48 +51,28 @@ var styleMarkers = function (closestPoints) {
   });
 };
 
-
-
-
-function getColor(d) {
-    return d >10 ? '#800026' :
-           d > 5  ? '#BD0026' :
-           d > 4  ? '#E31A1C' :
-           d > 3  ? '#FC4E2A' :
-           d > 2   ? '#FD8D3C' :
-           d > 1   ? '#FEB24C' :
-           d > 0   ? '#FED976' :
-                      '#FFEDA0';
-}
-
-function style(feature) {
-    return {
-        fillColor: getColor(feature.properties.nitr_ran),
-        weight: 0,
-        opacity: 1,
-        //color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.7
-    };
-}
-
-
-var getInterpolatedPoints = function (e) {
+var getClosestPoints = function (e) {
   var allJson = _.clone(myGeoJson);
-   // jsnBuffer= turf.buffer(leafletLayers.toGeoJSON(),20,{units:'kilometers'})
-    //lyrBuffer = L.geoJSON(jsnBuffer, {style:{color:'yellow', dashArray:'5,5', fillOpacity:0}}).addTo()
-  //var points = turf.points(allJson);
-  var options = {gridType: 'square', property: 'nitr_ran', units: 'miles', weight: 2};
-  var grid = turf.interpolate(leafletLayers.toGeoJSON(), 5, options);
-  lyrBuffer = L.geoJSON(grid, {style:style}).addTo(map)
-  //return grid;
-    console.log(grid);
+  var point = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [e.latlng.lng, e.latlng.lat]
+    }
+  };
+  var closest = [];
+  for (var i = 1; i < 20; i++) {
+    near = turf.nearest(point, allJson);
+    closest.push(near);
+    allJson = {
+      type: "FeatureCollections",
+      features: _.without(allJson.features, near)
+    };
+  }
+  return closest;
 };
 
-
-
-$("#interpolate").click(function(e){
-        var closestPoints = getInterpolatedPoints(e)
-    });
-
-
+map.on("mousemove", function (e) {
+  var closestPoints = getClosestPoints(e);
+  styleMarkers(closestPoints);
+});
