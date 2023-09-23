@@ -175,9 +175,17 @@ var getInterpolatedPoints = function (e) {
     nirtrateLayer.bringToFront()
     
     //use simplestatistics to run regression
-    
+    //create an array from the tractOutPUt
+    var allFeaturesArray = [];
+    collectCncr.features.forEach(function (feature) { 
+    ftrArray = [feature.properties.canrate, feature.properties.mean]
+    allFeaturesArray.push(ftrArray);
+    })
     //get r squared and add it to map
-    
+    var linearReg = ss.linearRegression(allFeaturesArray);
+    var regressionLine = ss.linearRegressionLine(linearReg);
+    var r2 = ss.rSquared(allFeaturesArray, regressionLine);
+    console.log(r2)
     // add a layer that shows the distribution of residuals
 };
 
