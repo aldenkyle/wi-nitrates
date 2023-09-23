@@ -137,6 +137,69 @@ function style2(feature) {
 }
 
 
+function style3(feature) {
+    return {
+        fillColor: cancerColor(feature.properties.predicted),
+        weight: .7,
+        opacity: 1,
+        color: 'white',
+        fillOpacity: 0.7
+    };
+}
+
+
+function residColor(d) {
+    return d >.4 ? '#542788' :
+           d >.3 ? '#8073ac' :
+           d >.2  ? '#b2abd2' :
+           d > .1  ? '#d8daeb' :
+           d > 0  ? '#f7f7f7' :
+           d > -.1   ? '#fee0b6' :
+           d > -.2   ? '#fdb863' :
+           d > -.3   ? '#e08214' :
+                      '#b35806';
+}
+
+
+
+function style4(feature) {
+    return {
+        fillColor: residColor(feature.properties.residual),
+        weight: .7,
+        opacity: 1,
+        color: 'white',
+        fillOpacity: 0.7
+    };
+}
+
+
+var legend = L.control({position: 'bottomleft'});
+
+legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        grades = [0,.1,.2,.3,.4,.5,.65,.8],
+        nitr_conc = [0,1,2,3,4,5,7.5,10],
+        labels = ['<strong>Cancer Rates</strong>'];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    div.innerHTML += '<strong>Cancer Rates per 100,000</strong><br><br>';
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML += 
+            '<i style="background:' + cancerColor(grades[i] + .01) + '"></i> ' +
+            grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+    }
+    div.innerHTML += '<br><br><strong>Nitrate Concentration Measurements</strong><br>';
+     for (var i = 0; i < grades.length; i++) {
+        div.innerHTML += 
+            '<i style="background:' + getNitrateColor(nitr_conc[i] + .01) + '"></i> ' +
+            nitr_conc[i] + (nitr_conc[i + 1] ? '&ndash;' + nitr_conc[i + 1] + '<br>' : '+');
+    }
+
+    return div;
+};
+
+legend.addTo(map);
 
 
 //set up function to run the analysis
@@ -178,15 +241,51 @@ var getInterpolatedPoints = function (e) {
     //create an array from the tractOutPUt
     var allFeaturesArray = [];
     collectCncr.features.forEach(function (feature) { 
-    ftrArray = [feature.properties.canrate, feature.properties.mean]
+    ftrArray = [feature.properties.mean, feature.properties.canrate]
     allFeaturesArray.push(ftrArray);
     })
     //get r squared and add it to map
     var linearReg = ss.linearRegression(allFeaturesArray);
+    console.log(linearReg);
     var regressionLine = ss.linearRegressionLine(linearReg);
     var r2 = ss.rSquared(allFeaturesArray, regressionLine);
     console.log(r2)
     // add a layer that shows the distribution of residuals
+    collectCncr.features.forEach(function (feature) { 
+    feature.properties.predicted = (feature.properties.mean * linearReg.m) + linearReg.b
+    //console.log(feature.properties.predicted)
+    //console.log(feature.properties.canrate)
+    feature.properties.residual = feature.properties.predicted - feature.properties.canrate
+    })
+    lyrPredicted =  L.geoJSON(collectCncr, {style:style3}).addTo(map);
+    layerControl.addOverlay(lyrPredicted, "Predicted Cancer Rates")
+    
+    //lyrResid =  L.geoJSON(collectCncr, {style:style4}).addTo(map);
+    //layerControl.addOverlay(lyrResid, "Predicted Cancer Rate Residuals")
+    
+    var statement 
+    if (r2<.2) {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
+    else if (r2<.5) {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a moderate correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
+    else if (r2<.8) {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a potentially a strong correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
+    else  {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a very strong correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
+    
+    L.Control.textbox = L.Control.extend({
+		onAdd: function(map) {
+			
+		var text = L.DomUtil.create('div');
+		text.id = "info_text";
+		text.innerHTML = statement
+		return text;
+		},
+
+		onRemove: function(map) {
+			// Nothing to do here
+		}
+	});
+	L.control.textbox = function(opts) { return new L.Control.textbox(opts);}
+	L.control.textbox({ position: 'bottomleft' }).addTo(map);
+
+    
 };
 
 
