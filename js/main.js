@@ -1,7 +1,7 @@
 
 //pulled this from https://codepen.io/lknarf/pen/JXybxX
 var map = L.map("map", {
-  center: [44, -91.5],
+  center: [45, -91.5],
   zoom: 7
 });
 var Stamen_TonerLite = L.tileLayer(
@@ -203,6 +203,7 @@ legend.addTo(map);
 
 //set up function to run the analysis
 var getInterpolatedPoints = function (e) {
+    console.log("running analysis function")
   var allJson = _.clone(myGeoJson);
    // get IDW exponent from app
   var idw_weight = Number(document.getElementById('idwFactor').value)
@@ -245,10 +246,10 @@ var getInterpolatedPoints = function (e) {
     })
     //get r squared and add it to map
     var linearReg = ss.linearRegression(allFeaturesArray);
-    console.log(linearReg);
+    //console.log(linearReg);
     var regressionLine = ss.linearRegressionLine(linearReg);
     var r2 = ss.rSquared(allFeaturesArray, regressionLine);
-    console.log(r2)
+    //console.log(r2)
     // add a layer that shows the distribution of residuals
     collectCncr.features.forEach(function (feature) { 
     feature.properties.predicted = (feature.properties.mean * linearReg.m) + linearReg.b
@@ -283,15 +284,36 @@ var getInterpolatedPoints = function (e) {
 
 
 
-$("#interpolate").click(function(e){
-        try { map.removeLayer(lyrBuffer);
+$("#interpolate").bind('click', function(e){
+        var closestPoints = getInterpolatedPoints(e);
+        console.log('analysis finished')
+    });
+
+
+$("#reset").bind('click', function(e){
+       console.log("hit reset")
+        try { layerControl.removeLayer(lyrBuffer);
             } catch(error)  {
               console.error(error);
               // Expected output: ReferenceError: nonExistentFunction is not defined
               // (Note: the exact output may be browser-dependent)
             }
-
-        var closestPoints = getInterpolatedPoints(e)
-    });
-
+        try { layerControl.removeLayer(lyrNitrates);
+            } catch(error)  {
+              console.error(error);
+              // Expected output: ReferenceError: nonExistentFunction is not defined
+              // (Note: the exact output may be browser-dependent)
+                    }
+         try { layerControl.removeLayer(lyrResid);
+                    } catch(error)  {
+                      console.error(error);
+                      // Expected output: ReferenceError: nonExistentFunction is not defined
+                      // (Note: the exact output may be browser-dependent)
+                    }
+         try { layerControl.removeLayer(lyrPredicted);
+                    } catch(error)  {
+                      console.error(error);
+                      // Expected output: ReferenceError: nonExistentFunction is not defined
+                      // (Note: the exact output may be browser-dependent)
+                    }});
 

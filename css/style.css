@@ -130,9 +130,12 @@ textarea {
 }
 
 
-#IDWFactor {
-    border-radius: 5px;
+
+#idwFactor {
+    border-radius: 1px;
+    width: 125px;
 }
+
 
 
 .range-slider {
