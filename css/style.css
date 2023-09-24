@@ -84,6 +84,7 @@ textarea {
   resize: both;
 }
 
+
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
@@ -103,7 +104,7 @@ textarea {
     line-height: 42px;
     position: relative;
     bottom: 100;
-    background-color: rgba(40, 55, 71,.7);
+    background-color: rgba(1, 108, 89,.7);
 }
 
 #head-desc {
@@ -113,7 +114,9 @@ textarea {
     line-height: 42px;
     position: relative;
     bottom: 100;
-    background-color: rgba(40, 55, 71,.9);
+    text-justify:inter-word;
+    text-align: justify;
+    background-color: rgba(1, 70, 54,.7);
 }
 
 #panel2 {
@@ -124,6 +127,11 @@ textarea {
     text-align: center;
     line-height: 42px;
     background-color: rgba(40, 55, 71,.7);
+}
+
+
+#IDWFactor {
+    border-radius: 5px;
 }
 
 
@@ -235,6 +243,9 @@ input[type="range"]:focus::-webkit-slider-thumb {
 .legend {
     line-height: 18px;
     color: #555;
+    background-color: #ffffff;
+    padding: 12px;
+    border-radius: 15px;
 }
 .legend i {
     width: 18px;
@@ -982,4 +993,4 @@ svg.leaflet-image-layer.leaflet-interactive path {
 		}
 	}
 
- .leaflet-control-container .leaflet-top.leaflet-left { position: absolute; left: 0px; top: 492px}
+ .leaflet-control-container .leaflet-top.leaflet-left { position: absolute; left: 420px; top: 10px}

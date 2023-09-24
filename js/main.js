@@ -1,10 +1,9 @@
 
 //pulled this from https://codepen.io/lknarf/pen/JXybxX
 var map = L.map("map", {
-  center: [44.5, -89.7],
+  center: [44, -91.5],
   zoom: 7
 });
-
 var Stamen_TonerLite = L.tileLayer(
   "http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png",
   {
@@ -34,7 +33,7 @@ var overlayMaps = {
 };
 
 var layerControl;
-var layerControl = L.control.layers(baseMaps, overlayMaps, {position: 'bottomright'}).addTo(map);
+var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed:false, position: 'topright'}).addTo(map);
 var nitrateLayer;
 var myGeoJson;
 
@@ -121,7 +120,7 @@ $.ajax(url).done(function (data) {
   });
   nirtrateLayer.addTo(map);
   layerControl.addOverlay(nirtrateLayer, "Nitrate Concentrations")
-  tractLayer.bringToBack()
+  //tractLayer.bringToBack()
 });
 
 
@@ -173,7 +172,7 @@ function style4(feature) {
 }
 
 
-var legend = L.control({position: 'bottomleft'});
+var legend = L.control({position: 'topright'});
 
 legend.onAdd = function (map) {
 
@@ -212,7 +211,7 @@ var getInterpolatedPoints = function (e) {
   var idw_dist_points = 3
   var options = {gridType: 'square', property: 'nitr_ran', units: 'miles', weight: idw_weight};
   var grid = turf.interpolate(nirtrateLayer.toGeoJSON(), idw_dist_map, options);
-  lyrBuffer = L.geoJSON(grid, {style:style}).addTo(map);
+  lyrBuffer = L.geoJSON(grid, {style:style});
   layerControl.addOverlay(lyrBuffer, "Interpolated Nitrate Concentrations")
   var ptoptions = {gridType: 'point', property: 'nitr_ran', units: 'miles', weight: idw_weight};
   var grid_pts = turf.interpolate(nirtrateLayer.toGeoJSON(), idw_dist_points, ptoptions);
@@ -257,34 +256,25 @@ var getInterpolatedPoints = function (e) {
     //console.log(feature.properties.canrate)
     feature.properties.residual = feature.properties.predicted - feature.properties.canrate
     })
-    lyrPredicted =  L.geoJSON(collectCncr, {style:style3}).addTo(map);
+    lyrPredicted =  L.geoJSON(collectCncr, {style:style3});
     layerControl.addOverlay(lyrPredicted, "Predicted Cancer Rates")
     
-    //lyrResid =  L.geoJSON(collectCncr, {style:style4}).addTo(map);
-    //layerControl.addOverlay(lyrResid, "Predicted Cancer Rate Residuals")
+    lyrResid =  L.geoJSON(collectCncr, {style:style4});
+    layerControl.addOverlay(lyrResid, "Predicted Cancer Rate Residuals")
     
     var statement 
-    if (r2<.2) {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
-    else if (r2<.5) {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a moderate correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
-    else if (r2<.8) {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a potentially a strong correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
-    else  {statement = '<strong>The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a very strong correlation between nitrate concentrations and cancer rates in Wisconsin.</strong>'}
+    var htmlcontent = '<p class="para1" style="color:white; font-size: 1.3em; font-weight: bold; text-align: left; line-height:normal; margin-top:-10px; margin-left:20px; margin-right:10px"><br><br>'
+    if (r2<.2) {statement = htmlcontent + 'Output: The resulting r-squared value, using a distance exponent of '+ idw_weight +' is '+ r2.toString().substring(0,4) +',  ' + 'indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
+    else if (r2<.5) {statement = htmlcontent +  'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a moderate correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
+    else if (r2<.8) {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a potentially a strong correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
+    else  {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a very strong correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
     
-    L.Control.textbox = L.Control.extend({
-		onAdd: function(map) {
-			
-		var text = L.DomUtil.create('div');
-		text.id = "info_text";
-		text.innerHTML = statement
-		return text;
-		},
-
-		onRemove: function(map) {
-			// Nothing to do here
-		}
-	});
-	L.control.textbox = function(opts) { return new L.Control.textbox(opts);}
-	L.control.textbox({ position: 'bottomleft' }).addTo(map);
-
+    //var theDiv = document.getElementById("head-desc");;
+    //var content = document.createTextNode(statement);
+    //theDiv.appendChild(content);
+    
+    var div = document.getElementById('head-desc');
+    div.innerHTML += statement;
     
 };
 
