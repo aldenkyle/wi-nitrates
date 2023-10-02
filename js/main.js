@@ -28,7 +28,6 @@ var baseMaps = {
 };
 
 
-
 var overlayMaps = {
 };
 
@@ -200,6 +199,9 @@ legend.onAdd = function (map) {
 
 legend.addTo(map);
 
+
+
+
 //set up function to run the analysis
 var getInterpolatedPoints = function () {
     console.log("running analysis function")
@@ -263,7 +265,7 @@ var getInterpolatedPoints = function () {
     layerControl.addOverlay(lyrResid, "Predicted Cancer Rate Residuals")
     
     var statement 
-    var htmlcontent = '<p class="para1" style="color:white; font-size: 1.3em; font-weight: bold; text-align: left; line-height:normal; margin-top:-10px; margin-left:20px; margin-right:10px"><br><br>'
+    var htmlcontent = '<p class="para1" style="color:white; font-size: 1.3em; font-weight: bold; text-align: left; line-height:normal; margin-top:-10px; margin-left:20px; margin-right:10px"><br>'
     if (r2<.2) {statement = htmlcontent + 'Output: The resulting r-squared value, using a distance exponent of '+ idw_weight +' is '+ r2.toString().substring(0,4) +',  ' + 'indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
     else if (r2<.5) {statement = htmlcontent +  'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a moderate correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
     else if (r2<.8) {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a potentially a strong correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
@@ -274,8 +276,8 @@ var getInterpolatedPoints = function () {
     //theDiv.appendChild(content);
     
     var div = document.getElementById('running_text');
-    div.innerHTML += statement;
-    
+    div.innerHTML = statement;
+    console.log('analysis finished')
 };
 
 
@@ -318,14 +320,36 @@ $("#reset").bind('click', function(){
     });
 
 
+
+
+
+ var updateRunning =  function (addCompleted) {
+    var div = document.getElementById('running_text');
+     div.innerHTML = '<p class="para1" style="color:white; font-size: 1.3em; font-weight: bold; text-align: left; line-height:normal; margin-top:-10px; margin-left:20px; margin-right:10px"><br>Running...</p>';
+     console.log(div.innerHTML)
+    addCompleted();
+      }
+
+
 $("#interpolate").bind('click', function(){
-        $("#running_text").show();
-        getInterpolatedPoints();
-        console.log('analysis finished')
-        //$("#running_text").hide();
+    var count = 0;
+    var addCompleted = function() {count =1};
+    updateRunning(addCompleted);
+     $("#running_text").show();
+    requestAnimationFrame(() => {
+        // fires before next repaint
+
+        requestAnimationFrame(() => {
+            // fires before the _next_ next repaint
+            // ...which is effectively _after_ the next repaint
+
+            getInterpolatedPoints();
+        });
+    });
+        
     });
 
 
-        
+   
         
 
