@@ -200,10 +200,19 @@ legend.onAdd = function (map) {
 
 legend.addTo(map);
 
+//creating a function to update the div
+function updateDiv()
+{ 
+    $( "#head-desc" ).load(window.location.href + " #head-desc" );
+}
+
 
 //set up function to run the analysis
-var getInterpolatedPoints = function (e) {
+var getInterpolatedPoints = function () {
     console.log("running analysis function")
+  var div = document.getElementById('running_text');
+   div.innerHTML == "Analysis Running, may take up to 30 seconds"
+   updateDiv();
   var allJson = _.clone(myGeoJson);
    // get IDW exponent from app
   var idw_weight = Number(document.getElementById('idwFactor').value)
@@ -274,46 +283,60 @@ var getInterpolatedPoints = function (e) {
     //var content = document.createTextNode(statement);
     //theDiv.appendChild(content);
     
-    var div = document.getElementById('head-desc');
-    div.innerHTML += statement;
+    
+    div.innerHTML == statement;
+    updateDiv();
     
 };
 
 
 
-
-
-
-$("#interpolate").bind('click', function(e){
-        var closestPoints = getInterpolatedPoints(e);
-        console.log('analysis finished')
-    });
-
-
-$("#reset").bind('click', function(e){
-       console.log("hit reset")
-        try { layerControl.removeLayer(lyrBuffer);
+var resetMap = function() {
+    console.log("hit reset button")
+    try { layerControl.removeLayer(lyrBuffer);
+         map.removeLayer(lyrBuffer);
             } catch(error)  {
-              console.error(error);
+              //console.error(error);
               // Expected output: ReferenceError: nonExistentFunction is not defined
               // (Note: the exact output may be browser-dependent)
             }
         try { layerControl.removeLayer(lyrNitrates);
+             map.removeLayer(lyrNitrates);
             } catch(error)  {
-              console.error(error);
+              //console.error(error);
               // Expected output: ReferenceError: nonExistentFunction is not defined
               // (Note: the exact output may be browser-dependent)
                     }
          try { layerControl.removeLayer(lyrResid);
+              map.removeLayer(lyrResid);
                     } catch(error)  {
-                      console.error(error);
+                      //console.error(error);
                       // Expected output: ReferenceError: nonExistentFunction is not defined
                       // (Note: the exact output may be browser-dependent)
                     }
          try { layerControl.removeLayer(lyrPredicted);
+               map.removeLayer(lyrPredicted);
                     } catch(error)  {
                       console.error(error);
                       // Expected output: ReferenceError: nonExistentFunction is not defined
                       // (Note: the exact output may be browser-dependent)
-                    }});
+                    }};
+    
+
+$("#reset").bind('click', function(){
+        resetMap();
+        //$("#running_text").hide();
+    });
+
+
+$("#interpolate").bind('click', function(){
+       // $("#running_text").show();
+        getInterpolatedPoints();
+        console.log('analysis finished')
+        //$("#running_text").hide();
+    });
+
+
+        
+        
 
