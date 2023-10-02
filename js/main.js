@@ -200,19 +200,9 @@ legend.onAdd = function (map) {
 
 legend.addTo(map);
 
-//creating a function to update the div
-function updateDiv()
-{ 
-    $( "#head-desc" ).load(window.location.href + " #head-desc" );
-}
-
-
 //set up function to run the analysis
 var getInterpolatedPoints = function () {
     console.log("running analysis function")
-  var div = document.getElementById('running_text');
-   div.innerHTML == "Analysis Running, may take up to 30 seconds"
-   updateDiv();
   var allJson = _.clone(myGeoJson);
    // get IDW exponent from app
   var idw_weight = Number(document.getElementById('idwFactor').value)
@@ -283,9 +273,8 @@ var getInterpolatedPoints = function () {
     //var content = document.createTextNode(statement);
     //theDiv.appendChild(content);
     
-    
-    div.innerHTML == statement;
-    updateDiv();
+    var div = document.getElementById('running_text');
+    div.innerHTML += statement;
     
 };
 
@@ -325,12 +314,12 @@ var resetMap = function() {
 
 $("#reset").bind('click', function(){
         resetMap();
-        //$("#running_text").hide();
+        $("#running_text").hide();
     });
 
 
 $("#interpolate").bind('click', function(){
-       // $("#running_text").show();
+        $("#running_text").show();
         getInterpolatedPoints();
         console.log('analysis finished')
         //$("#running_text").hide();
