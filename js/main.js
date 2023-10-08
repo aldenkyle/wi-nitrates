@@ -80,8 +80,14 @@ var url =
 
 $.ajax(url).done(function (data) {
   tracts = JSON.parse(data);
-  tractLayer = L.geoJson(tracts, {style:style0});
+  //tractLayer = L.geoJson(tracts, {style:style0});
+  tractLayer = L.geoJSON(tracts, { style:style0,
+  onEachFeature: function (feature, layer) {
+    layer.bindPopup("<p><b>Cancer Rate:</b> " +feature.properties.canrate.toFixed(3) +"</p>");
+  }});
   tractLayer.addTo(map);
+  //var popupContent = "<p><b>Cancer Rate:</b> " + feature.properties.canrate + ;
+  //tractLayer.bindPopup(popupContent)
   layerControl.addOverlay(tractLayer, "Cancer Rate by Census Tract");
   tractLayer.bringToBack()
 });
@@ -115,6 +121,10 @@ $.ajax(url).done(function (data) {
       radius:4,
       fillOpacity:1,
       opacity:1});
+    },
+     onEachFeature: function (feature, marker) {
+      marker.bindPopup("<p><b>Nitrate Concentration:</b> " +feature.properties.nitr_ran.toFixed(2) +"</p>");
+      marker.addTo(map);
     }
   });
   nirtrateLayer.addTo(map);
@@ -213,7 +223,12 @@ var getInterpolatedPoints = function () {
   var idw_dist_points = 3
   var options = {gridType: 'square', property: 'nitr_ran', units: 'miles', weight: idw_weight};
   var grid = turf.interpolate(nirtrateLayer.toGeoJSON(), idw_dist_map, options);
-  lyrBuffer = L.geoJSON(grid, {style:style});
+    console.log(grid)
+  lyrBuffer = L.geoJSON(grid, { style:style,
+  onEachFeature: function (feature, layer) {
+    layer.bindPopup("<p><b>Estimated Nitrate Concentration per 3 mile Grid:</b> " +feature.properties.nitr_ran.toFixed(3) +"</p>");
+  }});
+  //lyrBuffer = L.geoJSON(grid, {style:style});
   layerControl.addOverlay(lyrBuffer, "Interpolated Nitrate Concentrations")
   var ptoptions = {gridType: 'point', property: 'nitr_ran', units: 'miles', weight: idw_weight};
   var grid_pts = turf.interpolate(nirtrateLayer.toGeoJSON(), idw_dist_points, ptoptions);
@@ -234,7 +249,10 @@ var getInterpolatedPoints = function () {
   //console.log(collectCncr);
     //add layer to the map showing the nitrate rates in each tract to check it out
     
-    lyrNitrates =  L.geoJSON(collectCncr, {style:style2}).addTo(map);
+    lyrNitrates =  L.geoJSON(collectCncr, {style:style2, 
+  onEachFeature: function (feature, layer) {
+    layer.bindPopup("<p><b>Estimated Nitrate Concentration per Census Tract:</b> " +feature.properties.mean.toFixed(3) +"</p>");
+  }}).addTo(map);
     layerControl.addOverlay(lyrNitrates, "Nitrate Concentrations per Census Tract")
     nirtrateLayer.bringToFront()
     
@@ -258,10 +276,16 @@ var getInterpolatedPoints = function () {
     //console.log(feature.properties.canrate)
     feature.properties.residual = feature.properties.predicted - feature.properties.canrate
     })
-    lyrPredicted =  L.geoJSON(collectCncr, {style:style3});
+    lyrPredicted =  L.geoJSON(collectCncr, {style:style3, 
+  onEachFeature: function (feature, layer) {
+    layer.bindPopup("<p><b>Predicted Cancer Rate:</b> " +feature.properties.predicted.toFixed(3) +"</p>");
+  }});
     layerControl.addOverlay(lyrPredicted, "Predicted Cancer Rates")
     
-    lyrResid =  L.geoJSON(collectCncr, {style:style4});
+    lyrResid =  L.geoJSON(collectCncr, {style:style4, 
+  onEachFeature: function (feature, layer) {
+    layer.bindPopup("<p><b>Difference between Predicted and Actual Cancer Rate:</b> " +feature.properties.residual.toFixed(3) +"</p>");
+  }});
     layerControl.addOverlay(lyrResid, "Predicted Cancer Rate Residuals")
     
     var statement 
