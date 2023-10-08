@@ -223,7 +223,6 @@ var getInterpolatedPoints = function () {
   var idw_dist_points = 3
   var options = {gridType: 'square', property: 'nitr_ran', units: 'miles', weight: idw_weight};
   var grid = turf.interpolate(nirtrateLayer.toGeoJSON(), idw_dist_map, options);
-    console.log(grid)
   lyrBuffer = L.geoJSON(grid, { style:style,
   onEachFeature: function (feature, layer) {
     layer.bindPopup("<p><b>Estimated Nitrate Concentration per 3 mile Grid:</b> " +feature.properties.nitr_ran.toFixed(3) +"</p>");
@@ -289,18 +288,22 @@ var getInterpolatedPoints = function () {
     layerControl.addOverlay(lyrResid, "Predicted Cancer Rate Residuals")
     
     var statement 
-    var htmlcontent = '<p class="para1" style="color:white; font-size: 1.3em; font-weight: bold; text-align: left; line-height:normal; margin-top:-10px; margin-left:20px; margin-right:10px"><br>'
-    if (r2<.2) {statement = htmlcontent + 'Output: The resulting r-squared value, using a distance exponent of '+ idw_weight +' is '+ r2.toString().substring(0,4) +',  ' + 'indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
-    else if (r2<.5) {statement = htmlcontent +  'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a moderate correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
-    else if (r2<.8) {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a potentially a strong correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
-    else  {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a very strong correlation between nitrate concentrations and cancer rates in Wisconsin.</p>'}
+    var htmlcontent = '<p class="para1" style="color:white; font-size: 1em; font-weight: bold; text-align: left; line-height:normal; margin-top:-10px; margin-left:20px; margin-right:10px"><br>'
+    if (r2<.2) {statement = htmlcontent + 'Output: The resulting r-squared value, using a distance exponent of '+ idw_weight +' is '+ r2.toString().substring(0,4) +',  ' + 'indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.'}
+    else if (r2<.5) {statement = htmlcontent +  'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a moderate correlation between nitrate concentrations and cancer rates in Wisconsin.'}
+    else if (r2<.8) {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a potentially a strong correlation between nitrate concentrations and cancer rates in Wisconsin.'}
+    else  {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a very strong correlation between nitrate concentrations and cancer rates in Wisconsin.'}
     
     //var theDiv = document.getElementById("head-desc");;
     //var content = document.createTextNode(statement);
     //theDiv.appendChild(content);
-    
+    statement = statement +  '  <button id="download" style="font-size: .99em" class="button">Download Output</button></p>'
     var div = document.getElementById('running_text');
     div.innerHTML = statement;
+    $("#download").bind('click', function(){
+        saveToFile()
+    });
+
     console.log('analysis finished')
 };
 
@@ -345,6 +348,13 @@ $("#reset").bind('click', function(){
 
 
 
+function saveToFile() {
+  var file = 'nitrate_cancer_results.geojson';
+  saveAs(new File([JSON.stringify(lyrPredicted.toGeoJSON())], file, {
+    type: "text/plain;charset=utf-8"
+  }), file);
+}
+
 
 
  var updateRunning =  function (addCompleted) {
@@ -354,6 +364,7 @@ $("#reset").bind('click', function(){
     addCompleted();
       }
 
+ 
 
 $("#interpolate").bind('click', function(){
     var count = 0;
@@ -374,6 +385,6 @@ $("#interpolate").bind('click', function(){
     });
 
 
-   
+
         
 
