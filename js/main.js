@@ -289,7 +289,7 @@ var getInterpolatedPoints = function () {
     
     var statement 
     var htmlcontent = '<p class="para1" style="color:white; font-size: 1em; font-weight: bold; text-align: left; line-height:normal; margin-top:-10px; margin-left:20px; margin-right:10px"><br>'
-    if (r2<.2) {statement = htmlcontent + 'Output: The resulting r-squared value, using a distance exponent of '+ idw_weight +' is '+ r2.toString().substring(0,4) +',  ' + 'indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.'}
+    if (r2<.2) {statement = htmlcontent + 'Output: The resulting r-squared value, using a distance exponent of '+ idw_weight +', is '+ r2.toString().substring(0,4) +',  ' + 'indicating that there is little correlation between nitrate concentrations and cancer rates in Wisconsin.'}
     else if (r2<.5) {statement = htmlcontent +  'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a moderate correlation between nitrate concentrations and cancer rates in Wisconsin.'}
     else if (r2<.8) {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a potentially a strong correlation between nitrate concentrations and cancer rates in Wisconsin.'}
     else  {statement = htmlcontent + 'Output: The resulting r-squared value is '+ r2.toString().substring(0,4) +', indicating that there is a very strong correlation between nitrate concentrations and cancer rates in Wisconsin.'}
@@ -297,7 +297,7 @@ var getInterpolatedPoints = function () {
     //var theDiv = document.getElementById("head-desc");;
     //var content = document.createTextNode(statement);
     //theDiv.appendChild(content);
-    statement = statement +  '  <button id="download" style="font-size: .99em" class="button">Download Output</button></p>'
+    statement = statement +  '  <button id="download" style="font-size: .99em" class="button">Download GeoJSON Output</button></p>'
     var div = document.getElementById('running_text');
     div.innerHTML = statement;
     $("#download").bind('click', function(){

@@ -110,7 +110,7 @@ textarea {
 
 #head-desc {
     width: 100%;
-
+    overflow-x: scroll;
     display: inline-block;
     line-height: 42px;
     position: relative;
