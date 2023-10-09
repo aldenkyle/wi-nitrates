@@ -28,6 +28,7 @@ var baseMaps = {
 };
 
 
+
 var overlayMaps = {
 };
 
@@ -35,6 +36,7 @@ var layerControl;
 var layerControl = L.control.layers(baseMaps, overlayMaps, {collapsed:false, position: 'topright'}).addTo(map);
 var nitrateLayer;
 var myGeoJson;
+var popLayer;
 
 var tractLayer;
 
@@ -181,6 +183,54 @@ function style4(feature) {
 }
 
 
+
+
+
+//add search - this was very annoying had to add on the same points again as a Marker layer but transparent
+function addSearch(map) {
+    var markersLayer = new L.LayerGroup();	//layer contain searched elements
+    map.addLayer(markersLayer);
+    var controlSearch = new L.Control.Search({
+		position:'topleft',		
+		layer: markersLayer,
+        propertyName: 'name',
+		initial: true,
+		zoom: 13
+	});
+    map.addControl( controlSearch );
+    var circleIcon = L.icon({
+    iconUrl: 'img/circle-outline-svgrepo-com.svg',
+    iconSize:     [1, 1], // size of the icon
+    });
+    var geojsonMarkerOptions2 = {
+                radius: 1,
+                fillColor: "#ff7800",
+                color: "#000",
+                weight: 0,
+                opacity: 0,
+                fillOpacity: 0,
+                title: name
+            };
+    //console.log(data.responseJSON.features[1])
+    var ppUrl = "https://raw.githubusercontent.com/aldenkyle/wi-nitrates/main/data/pop_places.geojson";
+    $.ajax(ppUrl).done(function (popPlaces) {
+        var data = JSON.parse(popPlaces);
+        //console.log(data.features);
+    for(i in data.features) {
+		var name = data.features[i].properties.name,	//value searched
+			loc_lat = data.features[i].geometry.coordinates[0],
+            loc_lon =
+            data.features[i].geometry.coordinates[1]
+            //position found
+			marker = new L.Marker( new L.latLng([loc_lon, loc_lat]), {name:name, icon:circleIcon, opacity:0, fillOpacity:0} )
+		markersLayer.addLayer(marker);
+	}
+    })};
+                       
+addSearch(map);
+
+
+//working on legends
 var legend = L.control({position: 'topright'});
 
 legend.onAdd = function (map) {
@@ -270,6 +320,7 @@ var getInterpolatedPoints = function () {
     //console.log(r2)
     // add a layer that shows the distribution of residuals
     collectCncr.features.forEach(function (feature) { 
+    feature.properties.nitrate_est = feature.properties.mean;
     feature.properties.predicted = (feature.properties.mean * linearReg.m) + linearReg.b
     //console.log(feature.properties.predicted)
     //console.log(feature.properties.canrate)
